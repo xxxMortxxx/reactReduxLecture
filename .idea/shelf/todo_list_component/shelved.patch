@@ -1,0 +1,137 @@
+Index: src/components/TodoList/TodoList.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/components/TodoList/TodoList.js	(date 1537307447060)
++++ src/components/TodoList/TodoList.js	(date 1537307447060)
+@@ -0,0 +1,57 @@
++import React from 'react';
++
++let idCounter = 0;
++
++export default class TodoList extends React.Component {
++  state = {
++    todos: [],
++    todoInputValue: '',
++  };
++  todoInputRef = React.createRef();
++
++  handleKeyPress = (event) => {
++    if (event.key === 'Enter') {
++      this.addTodo();
++    }
++  };
++
++  handleInputChange = (event) => {
++    this.setState({ todoInputValue: event.target.value });
++  };
++
++  addTodo = () => {
++    this.setState((prevState) => ({
++      todos: [...prevState.todos, { id: idCounter++, text: this.state.todoInputValue }],
++    }))
++  };
++
++  removeItemById = (id) => {
++    this.setState((prevState) => ({
++      todos: prevState.todos.filter(item => item.id !== id),
++    }))
++  };
++
++  renderTodo = (todo) => (
++    <li className="todo-item" key={todo.id}>
++      {todo.text}
++      <button onClick={() => this.removeItemById(todo.id)}>X</button>
++    </li>
++  );
++
++  render() {
++    const todosList = this.state.todos.map(this.renderTodo);
++
++    return (
++      <React.Fragment>
++        <input
++          type="text"
++          value={this.state.todoInputValue}
++          onChange={this.handleInputChange}
++          onKeyPress={this.handleKeyPress}
++        />
++        <button onClick={this.addTodo}>Add</button>
++        <ul>{todosList}</ul>
++      </React.Fragment>
++    )
++  }
++}
+\ No newline at end of file
+Index: src/components/TodoList/TodoList.spec.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/components/TodoList/TodoList.spec.js	(date 1537307395862)
++++ src/components/TodoList/TodoList.spec.js	(date 1537307395862)
+@@ -0,0 +1,37 @@
++import React from 'react';
++import renderer from 'react-test-renderer';
++import {shallow} from 'enzyme';
++
++import TodoList from './TodoList';
++
++describe('TodoList', () => {
++  it('should match snapshot', () => {
++    const tree = renderer.create(<TodoList/>).toJSON();
++    expect(tree).toMatchSnapshot();
++  });
++
++  it('should add new todo item on button press', () => {
++    const wrapper = shallow(<TodoList/>);
++    wrapper.setState({ todoInputValue: 'new todo item' });
++    wrapper.find('button').simulate('click');
++    expect(wrapper.find('.todo-item').length).toBe(1);
++  });
++
++  it('should add new todo item on Enter key press', () => {
++    const wrapper = shallow(<TodoList/>);
++    wrapper.setState({ todoInputValue: 'new todo item' });
++    wrapper.find('input').simulate('keyPress', { key: 'Enter' });
++    expect(wrapper.find('.todo-item').length).toBe(1);
++  });
++
++  it('should remove todo item when item delete button pressed', () => {
++    const wrapper = shallow(<TodoList/>);
++
++    wrapper.setState({ todoInputValue: 'new todo item' });
++    wrapper.find('input').simulate('keyPress', { key: 'Enter' });
++    expect(wrapper.find('.todo-item').length).toBe(1);
++
++    wrapper.find('.todo-item').find('button').simulate('click');
++    expect(wrapper.find('.todo-item').length).toBe(0);
++  })
++});
+Index: src/components/TodoList/__snapshots__/TodoList.spec.js.snap
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/components/TodoList/__snapshots__/TodoList.spec.js.snap	(date 1537306047840)
++++ src/components/TodoList/__snapshots__/TodoList.spec.js.snap	(date 1537306047840)
+@@ -0,0 +1,18 @@
++// Jest Snapshot v1, https://goo.gl/fbAQLP
++
++exports[`TodoList should match snapshot 1`] = `
++Array [
++  <input
++    onChange={[Function]}
++    onKeyPress={[Function]}
++    type="text"
++    value=""
++/>,
++  <button
++    onClick={[Function]}
++>
++    Add
++</button>,
++  <ul />,
++]
++`;
