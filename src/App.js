@@ -1,14 +1,19 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux'
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
 import TodoList from './components/TodoList/TodoList'
 import rootReducer from './reducers';
+import logger from './middlewares/logger';
 
 import logo from './logo.svg';
 import './App.css';
 
-const store = createStore(rootReducer);
+const store = createStore(
+  rootReducer,
+  applyMiddleware(thunk, logger),
+);
 
 class App extends Component {
   render() {
